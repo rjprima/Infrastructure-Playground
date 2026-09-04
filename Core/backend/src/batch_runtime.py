@@ -7,13 +7,15 @@ from algos import *
 
 POSTGRES_CONT_NAME = os.environ.get("POSTGRES_CONT_NAME")
 POSTGRES_PORT = os.environ.get("POSTGRES_PORT")
+PASSWORD = os.environ.get("POSTGRES_PASSWORD")
+LISTEN_PORT = os.environ.get("PORT")
 
 conn = psycopg2.connect(
-    host="POSTGRES_CONT_NAME", 
+    host=POSTGRES_CONT_NAME, 
     port=POSTGRES_PORT,
     user="postgres",
-    password="PASSWORD",
-    dbname="postgres"
+    password=PASSWORD,
+    dbname="simplified_expressions"
 )
 
 cursor = conn.cursor()

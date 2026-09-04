@@ -4,7 +4,7 @@ import os
 
 command = ""
 
-url = os.environ.get('NGINX_ROUTE_URL')
+url = "http://" + os.environ.get('NGINX_CONT_NAME') + ":" + os.environ.get('NGINX_PORT')
 
 batch = []
 
