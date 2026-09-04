@@ -1,0 +1,15 @@
+FROM python:3.13-slim
+WORKDIR /src/
+
+COPY ./requirements.txt /
+RUN pip install --no-cache-dir -r /requirements.txt
+
+COPY ./src/algos.py .
+COPY ./src/batch_runtime.py .
+
+EXPOSE 8080
+
+RUN useradd -m app
+USER app
+
+CMD ["python", "batch_runtime.py"]
