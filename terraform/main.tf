@@ -1,10 +1,10 @@
 terraform {
-  required_providers {
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = "~> 3.0.0"
+    required_providers {
+        docker = {
+        source  = "kreuzwerker/docker"
+        version = "~> 3.0.0"
+        }
     }
-  }
 }
 
 provider "docker" {}
@@ -14,12 +14,21 @@ resource "docker_network" "network" {
 }
 
 resource "docker_image" "nginx" {
-  name = "nginx:latest"
-  keep_locally = true
+    name = "infra-playground/nginx-mod:latest"
+    keep_locally = true
+
+    build {
+        context = "${path.module}/../nginx-config"
+        dockerfile = "dockerfile"
+
+        triggers = {
+        config_md5 = local_file.nginx_conf_template.content_md5
+        }
+    }
 }
 
 resource "docker_image" "postgres" {
-    name = "postgres:latest"
+    name = "infra-playground/postgres-mod:latest"
     keep_locally = true
 }
 
@@ -31,6 +40,15 @@ resource "docker_image" "worker" {
 resource "docker_image" "interface" {
     name = "infra-playground/cli:latest"
     keep_locally = true
+}
+
+resource "local_file" "nginx_conf_template" {
+    content = templatefile("${path.cwd}/../nginx-config/nginx.conf.tftpl", {
+        worker_count = var.worker_count
+        worker_port = var.worker_port
+        nginx_port = var.nginx_port
+    })
+    filename = "${path.cwd}/../nginx-config/default.conf"
 }
 
 resource "docker_container" "nginx" {
@@ -55,13 +73,13 @@ resource "docker_container" "postgres" {
     env = [
         "POSTGRES_DB=simplified_expressions",
         "POSTGRES_USER=super",
-        "POSTGRES_PASSWORD=${postgres_password}"
+        "POSTGRES_PASSWORD=${var.postgres_password}"
     ]
 
-    command = ["postgres", "-p", "${postgres_port}"]
+    command = ["postgres", "-p", "${var.postgres_port}"]
 
     ports {
-        internal = postgres_port
+        internal = var.postgres_port
     }
 }
 
@@ -73,9 +91,9 @@ resource "docker_container" "worker" {
 
     env = [
         "POSTGRES_CONT_NAME=database",
-        "POSTGRES_PORT=${postgres_port}",
-        "POSTGRESS_PASSWORD=${postgres_password}",
-        "PORT=${worker_port}"
+        "POSTGRES_PORT=${var.postgres_port}",
+        "POSTGRESS_PASSWORD=${var.postgres_password}",
+        "PORT=${var.worker_port}"
     ]
 
     networks_advanced {
@@ -91,7 +109,7 @@ resource "docker_container" "interface" {
 
     env = [
         "NGINX_CONT_NAME=router",
-        "NGINX_PORT=${nginx_port}"
+        "NGINX_PORT=${var.nginx_port}"
     ]
 
     networks_advanced {

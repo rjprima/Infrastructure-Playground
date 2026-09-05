@@ -1,0 +1,17 @@
+upstream backend_servers {
+    %{for i in range(0, worker_count) ~}
+        server worker-${i}:${worker_port};
+    %{endfor ~}
+}
+
+server {
+    listen ${nginx_port};
+    location / {
+        proxy_pass //backend_servers;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
