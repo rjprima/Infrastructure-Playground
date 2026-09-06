@@ -20,23 +20,13 @@ A small multi-container system (ingest → load balancer → worker pool → dat
 Observability layer: Promtail → Loki → Grafana
 ```
 
-| Component | Role |
-|---|---|
-| Ingest container | Accepts and validates input files |
-| Nginx | Load balances requests across worker containers |
-| Worker containers | Process calculation batches |
-| Postgres | Data persistence |
-| LocalStack S3 | Simulates AWS S3 for session backups |
-| Loki / Promtail / Grafana | Centralized logging and monitoring |
-
 ## Tech Stack
 
-* **Containerization:** Docker / Docker Compose
+* **Containerization:** Docker
 * **Load Balancing:** Nginx
 * **Database:** PostgreSQL
 * **Cloud Emulation:** LocalStack (S3)
 * **Infrastructure as Code:** Terraform
-* **Configuration Management:** Ansible
 * **CI/CD:** GitHub Actions
 * **Observability:** Loki, Promtail, Grafana
 * **Application Layer:** Python
@@ -44,10 +34,9 @@ Observability layer: Promtail → Loki → Grafana
 ## Roadmap
 
 - [x] Core application logic (ingest → route → process → persist)
-- [ ] Terraform provisioning
-- [ ] Ansible configuration management
-- [ ] LocalStack S3 backup integration
+- [x] Terraform provisioning
 - [ ] GitHub Actions CI/CD (builds, registry push, linting)
+- [ ] LocalStack S3 backup integration
 - [ ] Observability stack (Promtail, Loki, Grafana)
 - [ ] Automated teardown and rebuild testing (`terraform destroy` / `terraform apply`)
 
@@ -60,8 +49,61 @@ Observability layer: Promtail → Loki → Grafana
 * **Observability:** Aggregate and visualize logs across all services using Loki, Promtail, and Grafana.
 * **Local Cloud Emulation:** Test cloud integrations locally with LocalStack S3.
 
-*(Complete IaC launch instructions will be added once Terraform and Ansible configurations are finalized.)*
+## launch instructions:
+
+### Prerequisites
+-Terraform
+-Docker
+-Git
+
+1. clone repo
+`git clone https://github.com/rjprima/Infrastructure-Playground`
+
+2. enter the project directory
+`cd Infrastructure-Playground`
+
+3. build docker images
+```bash
+docker build -t infra-playground/worker ./core/backend
+docker build -t infra-playground/cli ./core/frontend
+docker build -t infra-playground/nginx-mod ./nginx-config
+docker build -t infra-playground/postgres-mod ./postgres-config
+```
+
+4. enter terraform module
+`cd terraform`
+
+5. run terraform commands
+```bash
+terraform init
+terraform plan
+terraform apply
+```
+
+6. when ready, stop the system with
+`terraform destroy`
+
+### Usage Instructions (once lunched)
+
+1. return to project directory
+`cd ..`
+
+2. copy your chosen test file in to container
+```bash
+docker cp core/testing/<input test file here> user_interface:/
+docker attach user_interface
+```
+
+3. enter 1
+
+4. enter file path
+`/<input test file here>`
+
+5. enter database container
+in another command line, or exiting the container command line: 
+`docker exec -it database psql -U <input chosen username here> -d simplified_expressions -p <input chosen port here>`
+
+6. # view entered processed data
+`SELECT expr, simplified FROM solved LIMIT 100;`
 
 ---
-
-**Contact:** [Your Name] · [LinkedIn] · [Email]
