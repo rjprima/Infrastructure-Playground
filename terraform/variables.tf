@@ -14,6 +14,9 @@ variable "postgres_password" {
     type = string
 }
 
+variable "postgres_user" {
+    type = string
+}
 
 variable "nginx_port" {
     type = number

@@ -17,14 +17,21 @@ resource "docker_image" "nginx" {
     name = "infra-playground/nginx-mod:latest"
     keep_locally = true
 
+    triggers = {
+        vars = sha256(jsonencode({
+            worker_port = var.worker_port
+            worker_count = var.worker_count
+            nginx_port = var.nginx_port
+        }))
+        tmpl = filesha256("${path.module}/../nginx-config/nginx.conf.tftpl")
+    }
+
     build {
         context = "${path.module}/../nginx-config"
         dockerfile = "dockerfile"
-
-        triggers = {
-        config_md5 = local_file.nginx_conf_template.content_md5
-        }
     }
+
+    depends_on = [local_file.nginx_conf_template]
 }
 
 resource "docker_image" "postgres" {
@@ -52,7 +59,7 @@ resource "local_file" "nginx_conf_template" {
 }
 
 resource "docker_container" "nginx" {
-    image = docker_image.ngninx.image_id
+    image = docker_image.nginx.image_id
     name = "router"
 
     networks_advanced {
@@ -72,7 +79,7 @@ resource "docker_container" "postgres" {
 
     env = [
         "POSTGRES_DB=simplified_expressions",
-        "POSTGRES_USER=super",
+        "POSTGRES_USER=${var.postgres_user}",
         "POSTGRES_PASSWORD=${var.postgres_password}"
     ]
 
@@ -84,7 +91,7 @@ resource "docker_container" "postgres" {
 }
 
 resource "docker_container" "worker" {
-    count = worker_count
+    count = var.worker_count
 
     name  = "worker-${count.index}"
     image = docker_image.worker.image_id
@@ -92,8 +99,9 @@ resource "docker_container" "worker" {
     env = [
         "POSTGRES_CONT_NAME=database",
         "POSTGRES_PORT=${var.postgres_port}",
-        "POSTGRESS_PASSWORD=${var.postgres_password}",
-        "PORT=${var.worker_port}"
+        "POSTGRES_PASSWORD=${var.postgres_password}",
+        "PORT=${var.worker_port}",
+        "USER=${var.postgres_user}"
     ]
 
     networks_advanced {
@@ -106,6 +114,9 @@ resource "docker_container" "worker" {
 resource "docker_container" "interface" {
     image = docker_image.interface.image_id
     name = "user_interface"
+
+    stdin_open = true
+    tty = true
 
     env = [
         "NGINX_CONT_NAME=router",

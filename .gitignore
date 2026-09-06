@@ -2,3 +2,4 @@ default.conf
 *.tfvars
 *.tfstate
 *.tfstate.backup
+.terraform/
