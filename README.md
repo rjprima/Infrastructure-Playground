@@ -57,9 +57,11 @@ Observability layer: Promtail → Loki → Grafana
 -Git
 
 1. clone repo
+
 `git clone https://github.com/rjprima/Infrastructure-Playground`
 
 2. enter the project directory
+
 `cd Infrastructure-Playground`
 
 3. build docker images
@@ -71,6 +73,7 @@ docker build -t infra-playground/postgres-mod ./postgres-config
 ```
 
 4. enter terraform module
+
 `cd terraform`
 
 5. run terraform commands
@@ -81,11 +84,13 @@ terraform apply
 ```
 
 6. when ready, stop the system with
+
 `terraform destroy`
 
 ### Usage Instructions (once lunched)
 
 1. return to project directory
+
 `cd ..`
 
 2. copy your chosen test file in to container
@@ -97,13 +102,16 @@ docker attach user_interface
 3. enter 1
 
 4. enter file path
+
 `/<input test file here>`
 
 5. enter database container
 in another command line, or exiting the container command line: 
+
 `docker exec -it database psql -U <input chosen username here> -d simplified_expressions -p <input chosen port here>`
 
-6. # view entered processed data
+6. view entered processed data
+
 `SELECT expr, simplified FROM solved LIMIT 100;`
 
 ---
