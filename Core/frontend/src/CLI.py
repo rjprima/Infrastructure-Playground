@@ -28,5 +28,12 @@ while command != "2":
                     encoded_data = json.dumps(payload).encode('utf-8')
                     req = urllib.request.Request(url, data=encoded_data, headers=headers, method="POST")
                     urllib.request.urlopen(req, timeout=5)
+                    batch = []
+            if len(batch) != 0:
+                payload = {"exprs": batch}
+                encoded_data = json.dumps(payload).encode('utf-8')
+                req = urllib.request.Request(url, data=encoded_data, headers=headers, method="POST")
+                urllib.request.urlopen(req, timeout=5)
+                batch = []
     else:
         print("invalid command")
