@@ -28,25 +28,25 @@ jobs:
       with:
         context: infrastructure-playground/core/backend
         push: true
-        tags: ghcr.io/${{ github.repository }}/worker:latest
+        tags: ghcr.io/infrastructure-playground/worker:latest
 
     - name: Build CLI
       uses: docker/build-push-action@v5
       with:
         context: infrastructure-playground/core/frontend
         push: true
-        tags: ghcr.io/${{ github.repository }}/cli:latest
+        tags: ghcr.io/infrastructure-playground/cli:latest
 
     - name: Build nginx-mod
       uses: docker/build-push-action@v5
       with:
         context: infrastructure-playground/nginx-config
         push: true
-        tags: ghcr.io/${{ github.repository }}/nginx-mod:latest
+        tags: ghcr.io/infrastructure-playground/nginx-mod:latest
 
     - name: Build postgres-mod
       uses: docker/build-push-action@v5
       with:
         context: infrastructure-playground/postgres-config
         push: true
-        tags: ghcr.io/${{ github.repository }}/postgres-mod:latest
+        tags: ghcr.io/infrastructure-playground/postgres-mod:latest
