@@ -4,3 +4,4 @@ default.conf
 *.tfstate.backup
 .terraform/
 __pycache__
+*.env

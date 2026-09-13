@@ -1,16 +1,39 @@
 terraform {
     required_providers {
         docker = {
-        source  = "kreuzwerker/docker"
-        version = "~> 3.0.0"
+            source  = "kreuzwerker/docker"
+            version = "~> 3.0.0"
+        }
+        aws = {
+            source = "hashicorp/aws"
+            version = "~> 5.0"
         }
     }
 }
 
 provider "docker" {}
 
+provider "aws" {
+    region = "us-west-1"
+    access_key = "mock_key"
+    secret_key = "mock_secret"
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    skip_requesting_account_id  = true
+    s3_use_path_style = true
+
+    endpoints {
+        s3 = "http://localhost:4566"
+    }
+}
+
 resource "docker_network" "network" {
     name = "mass_simplifier"
+}
+
+resource "docker_image" "aws" {
+    name = "localstack/localstack:latest"
+    keep_locally = true
 }
 
 resource "docker_image" "nginx" {
@@ -49,6 +72,11 @@ resource "docker_image" "interface" {
     keep_locally = true
 }
 
+resource "docker_image" "backup_scheduler" {
+    name = "infra-playground/backup-scheduler"
+    keep_locally = true
+}
+
 resource "local_file" "nginx_conf_template" {
     content = templatefile("${path.cwd}/../nginx-config/nginx.conf.tftpl", {
         worker_count = var.worker_count
@@ -56,6 +84,21 @@ resource "local_file" "nginx_conf_template" {
         nginx_port = var.nginx_port
     })
     filename = "${path.cwd}/../nginx-config/default.conf"
+}
+
+resource "docker_container" "aws" {
+    image = docker_image.aws.image_id
+    name  = "s3-emulator"
+
+    networks_advanced {
+        name = docker_network.network.name
+    }
+
+    env = [
+        "DEBUG=1",
+        "GATEWAY_LISTENER=0.0.0.0:4566",
+        "LOCALSTACK_AUTH_TOKEN=${var.localstack_auth}"
+    ]
 }
 
 resource "docker_container" "nginx" {
@@ -128,4 +171,21 @@ resource "docker_container" "interface" {
     }
 
     depends_on = [docker_container.nginx]
+}
+
+resource "docker_container" "backup_scheduler" {
+    image = docker_image.backup_scheduler.image_id
+    name = "backup-script"
+
+    networks_advanced {
+        name = docker_network.network.name
+    }
+
+    depends_on = [docker_container.postgres, docker_container.aws]
+
+    env = [
+        "postgres_user=${var.postgres_user}",
+        "postgres_port=${var.postgres_port}",
+        "PGPASSWORD=${var.postgres_password}"
+    ]
 }

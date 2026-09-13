@@ -26,27 +26,27 @@ jobs:
     - name: Build Worker
       uses: docker/build-push-action@v5
       with:
-        context: infrastructure-playground/core/backend
+        context: /infrastructure-playground/core/backend
         push: true
-        tags: ghcr.io/infrastructure-playground/worker:latest
+        tags: ghcr.io/rprima/infrastructure-playground/worker:latest
 
     - name: Build CLI
       uses: docker/build-push-action@v5
       with:
-        context: infrastructure-playground/core/frontend
+        context: /infrastructure-playground/core/frontend
         push: true
-        tags: ghcr.io/infrastructure-playground/cli:latest
+        tags: ghcr.io/rprima/infrastructure-playground/cli:latest
 
     - name: Build nginx-mod
       uses: docker/build-push-action@v5
       with:
-        context: infrastructure-playground/nginx-config
+        context: /infrastructure-playground/nginx-config
         push: true
-        tags: ghcr.io/infrastructure-playground/nginx-mod:latest
+        tags: ghcr.io/rprima/infrastructure-playground/nginx-mod:latest
 
     - name: Build postgres-mod
       uses: docker/build-push-action@v5
       with:
-        context: infrastructure-playground/postgres-config
+        context: /infrastructure-playground/postgres-config
         push: true
-        tags: ghcr.io/infrastructure-playground/postgres-mod:latest
+        tags: ghcr.io/rprima/infrastructure-playground/postgres-mod:latest

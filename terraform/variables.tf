@@ -21,3 +21,8 @@ variable "postgres_user" {
 variable "nginx_port" {
     type = number
 }
+
+variable "localstack_auth" {
+    type = string
+    sensitive = true
+}
