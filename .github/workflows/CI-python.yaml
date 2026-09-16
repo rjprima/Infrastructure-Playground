@@ -1,8 +1,13 @@
-name: validate changes
+name: validate python changes
 
 on: 
   pull_request:
     branches: ["main"]
+    paths:
+      - 'Core/backend/**'
+      - 'Core/frontend/**'
+      - 'Core/testing/src/**'
+      - 'Core/pytest.ini'
 
 jobs:
   validate:
@@ -11,9 +16,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-      
       - name: Setup Linter
         uses: actions/setup-python@v5
         with:
@@ -30,9 +32,3 @@ jobs:
 
       - name: Run Backend Tests
         run: pytest infrastructure-playground/core
-      
-      - name: Check Terraform Formatting
-        run: |
-          cd infrastructure-playground/terraform
-          terraform fmt -check -recursive
-          cd ../..

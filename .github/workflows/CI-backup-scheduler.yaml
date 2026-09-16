@@ -1,0 +1,17 @@
+name: validate backup-scheduler changes
+
+on: 
+  pull_request:
+    branches: ["main"]
+    paths:
+      - 'Core/backup-scheduler/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run Linter 
+        uses: ludeeus/action-shellcheck@master
