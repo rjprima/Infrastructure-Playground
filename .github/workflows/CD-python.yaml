@@ -1,4 +1,4 @@
-name: build/deploy resources
+name: build/deploy python resources
 
 on: 
   push:
@@ -26,13 +26,13 @@ jobs:
     - name: Build Worker
       uses: docker/build-push-action@v5
       with:
-        context: "{{ github.workspace }}/core/backend"
+        context: ./Core/backend
         push: true
         tags: ghcr.io/rprima/infrastructure-playground/worker:latest
 
     - name: Build CLI
       uses: docker/build-push-action@v5
       with:
-        context: "{{ github.workspace }}/core/frontend"
+        context: ./Core/frontend
         push: true
         tags: ghcr.io/rprima/infrastructure-playground/cli:latest

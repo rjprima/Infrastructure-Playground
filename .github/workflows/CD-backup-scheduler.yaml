@@ -1,4 +1,4 @@
-name: build/deploy resources
+name: build/deploy backup-scheduler resources
 
 on: 
   push:
@@ -23,9 +23,9 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build postgres-mod
+    - name: Build Backup-scheduler
       uses: docker/build-push-action@v5
       with:
-        context: "{{ github.workspace }}/Core/backup-scheduler"
+        context: ./Core/backup-scheduler
         push: true
         tags: ghcr.io/rprima/infrastructure-playground/backup-scheduler:latest

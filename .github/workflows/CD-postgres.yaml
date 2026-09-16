@@ -1,4 +1,4 @@
-name: build/deploy resources
+name: build/deploy postgres resources
 
 on: 
   push:
@@ -26,6 +26,6 @@ jobs:
     - name: Build postgres-mod
       uses: docker/build-push-action@v5
       with:
-        context: "{{ github.workspace }}/postgres-config"
+        context: ./postgres-config
         push: true
         tags: ghcr.io/rprima/infrastructure-playground/postgres-mod:latest
