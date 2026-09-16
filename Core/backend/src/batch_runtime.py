@@ -6,6 +6,7 @@ import json
 from algos import *
 import time
 from threading import Thread
+import random
 
 POSTGRES_CONT_NAME = os.environ.get("POSTGRES_CONT_NAME")
 POSTGRES_PORT = os.environ.get("POSTGRES_PORT")
@@ -16,37 +17,72 @@ USER = os.environ.get("USER")
 class SimpleHandler(BaseHTTPRequestHandler):
     dbconn = None
     dbcursor = None
+    waiting_mode = False
+    batch = []
 
     def do_POST(self):
-        if SimpleHandler.dbconn != None and SimpleHandler.dbcursor != None:
-            content_length = int(self.headers.get('Content-Length', 0))
-            body = self.rfile.read(content_length)
-            data = json.loads(body)
-            exprs = data.get("exprs")
-            batch = []
-            query = '''
-            INSERT INTO solved (expr, simplified)
-            VALUES (%s, %s);
-            '''
+        content_length = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(content_length)
+        data = json.loads(body)
+        query = '''
+        INSERT INTO solved (expr, simplified)
+        VALUES (%s, %s);
+        '''
 
-            for i in range(len(exprs)):
-                solved = evaluate(exprs[i])
-                batch.append((exprs[i], solved))
-
-            execute_batch(SimpleHandler.dbcursor, query, batch)
-            SimpleHandler.dbconn.commit()
+        if data.get("purpose") == "pause":
+            SimpleHandler.dbconn = None
+            SimpleHandler.dbcursor = None
+            SimpleHandler.waiting_mode = True
 
             response_data = json.dumps({"status": "success"}).encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Content-Length', str(len(response_data)))
             self.end_headers()
+            self.wfile.write(response_data)
+
+        elif data.get("purpose") == "restore":
+
+            response_data = json.dumps({"status": "success"}).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', str(len(response_data)))
+            self.end_headers()
+            self.wfile.write(response_data)
+            
+            connect_to_db()
+            time.sleep(random.randint(1,10)/1000)
+            if len(SimpleHandler.batch) != 0:
+                execute_batch(SimpleHandler.dbcursor, query, SimpleHandler.batch)
+                SimpleHandler.dbconn.commit()
+                SimpleHandler.batch = []
+
+        elif data.get("purpose") == "expr_batch" and SimpleHandler.dbconn != None and SimpleHandler.dbcursor != None:
+            exprs = data.get("exprs")
+
+            for i in range(len(exprs)):
+                solved = evaluate(exprs[i])
+                SimpleHandler.batch.append((exprs[i], solved))
+
+            if SimpleHandler.waiting_mode == False:
+                execute_batch(SimpleHandler.dbcursor, query, SimpleHandler.batch)
+                SimpleHandler.dbconn.commit()
+                SimpleHandler.batch = []
+
+            response_data = json.dumps({"status": "success"}).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', str(len(response_data)))
+            self.end_headers()
+            self.wfile.write(response_data)
+
         else:
             response_data = json.dumps({"status": "failure"}).encode('utf-8')
             self.send_response(503)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Content-Length', str(len(response_data)))
             self.end_headers()
+            self.wfile.write(response_data)
 
 def connect_to_db():
     backoff = 1
@@ -66,6 +102,7 @@ def connect_to_db():
             if backoff >= 65:
                 raise RuntimeError("connection to database could not be made")
         else:
+            print("successfully connected")
             break
 
     SimpleHandler.dbconn = conn

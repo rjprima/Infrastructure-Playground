@@ -87,7 +87,7 @@ terraform apply
 
 `terraform destroy`
 
-### Usage Instructions (once lunched)
+### Usage Instructions (once launched)
 
 1. return to project directory
 

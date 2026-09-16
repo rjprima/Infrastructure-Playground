@@ -186,6 +186,8 @@ resource "docker_container" "backup_scheduler" {
     env = [
         "postgres_user=${var.postgres_user}",
         "postgres_port=${var.postgres_port}",
-        "PGPASSWORD=${var.postgres_password}"
+        "PGPASSWORD=${var.postgres_password}",
+        "worker_count=${var.worker_count}",
+        "worker_port=${var.worker_port}"
     ]
 }

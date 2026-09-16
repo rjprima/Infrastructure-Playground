@@ -24,13 +24,13 @@ while command != "2":
                 line = i.strip()
                 batch.append(line)
                 if len(batch) == 10:
-                    payload = {"exprs": batch}
+                    payload = {"purpose":"expr_batch", "exprs": batch}
                     encoded_data = json.dumps(payload).encode('utf-8')
                     req = urllib.request.Request(url, data=encoded_data, headers=headers, method="POST")
                     urllib.request.urlopen(req, timeout=5)
                     batch = []
             if len(batch) != 0:
-                payload = {"exprs": batch}
+                payload = {"purpose":"expr_batch", "exprs": batch}
                 encoded_data = json.dumps(payload).encode('utf-8')
                 req = urllib.request.Request(url, data=encoded_data, headers=headers, method="POST")
                 urllib.request.urlopen(req, timeout=5)

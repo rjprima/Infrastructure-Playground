@@ -7,6 +7,6 @@ export AWS_DEFAULT_REGION="us-west-1"
 
 trap 'rm -f "/tmp/backup.sql"' EXIT
 
-pg_dump -h database -U $postgres_user -d simplified_expressions > /tmp/backup.sql -p $postgres_port
+pg_dump -h database -U $postgres_user -d simplified_expressions > /tmp/backup.sql -p $postgres_port -c -C
 
 aws --endpoint-url="http://s3-emulator:4566" s3 cp /tmp/backup.sql s3://db-backups/
