@@ -23,9 +23,17 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Extract metadata for postgres-mod
+      id: meta-postgres
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}/postgres-mod
+        tags: |
+          type=raw,value=latest
+
     - name: Build postgres-mod
       uses: docker/build-push-action@v5
       with:
         context: ./postgres-config
         push: true
-        tags: ghcr.io/rprima/infrastructure-playground/postgres-mod:latest
+        tags: ${{ steps.meta-postgres.outputs.tags }}

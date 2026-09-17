@@ -23,9 +23,17 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Extract metadata for nginx-mod
+      id: meta-nginx
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}/nginx-mod
+        tags: |
+          type=raw,value=latest
+
     - name: Build nginx-mod
       uses: docker/build-push-action@v5
       with:
         context: ./nginx-config
         push: true
-        tags: ghcr.io/rprima/infrastructure-playground/nginx-mod:latest
+        tags: ${{ steps.meta-nginx.outputs.tags }}

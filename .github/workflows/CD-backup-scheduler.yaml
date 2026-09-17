@@ -23,9 +23,17 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Extract metadata for backup-scheduler
+      id: meta-backup-scheduler
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}/nginx-mod
+        tags: |
+          type=raw,value=latest
+
     - name: Build Backup-scheduler
       uses: docker/build-push-action@v5
       with:
         context: ./Core/backup-scheduler
         push: true
-        tags: ghcr.io/rprima/infrastructure-playground/backup-scheduler:latest
+        tags: ${{ steps.meta-backup-scheduler.outputs.tags }}

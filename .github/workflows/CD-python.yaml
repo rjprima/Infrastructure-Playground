@@ -23,16 +23,32 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Extract metadata for Worker
+      id: meta-worker
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}/worker
+        tags: |
+          type=raw,value=latest
+
+    - name: Extract metadata for CLI
+      id: meta-cli
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}/cli
+        tags: |
+          type=raw,value=latest
+
     - name: Build Worker
       uses: docker/build-push-action@v5
       with:
         context: ./Core/backend
         push: true
-        tags: ghcr.io/rprima/infrastructure-playground/worker:latest
+        tags: ${{ steps.meta-worker.outputs.tags }}
 
     - name: Build CLI
       uses: docker/build-push-action@v5
       with:
         context: ./Core/frontend
         push: true
-        tags: ghcr.io/rprima/infrastructure-playground/cli:latest
+        tags: ${{ steps.meta-cli.outputs.tags }}
