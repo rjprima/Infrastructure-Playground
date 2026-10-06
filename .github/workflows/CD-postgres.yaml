@@ -34,6 +34,6 @@ jobs:
     - name: Build postgres-mod
       uses: docker/build-push-action@v5
       with:
-        context: ./postgres-config
+        context: ./POSTGRES-config
         push: true
         tags: ${{ steps.meta-postgres.outputs.tags }}

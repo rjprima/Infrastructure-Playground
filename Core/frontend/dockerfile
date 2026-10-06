@@ -11,4 +11,4 @@ EXPOSE 8080
 RUN useradd -m app
 USER app
 
-CMD ["python", "CLI.py"]
+CMD ["sh", "-c", "exec python CLI.py 2>> /var/log/container_logs/user_interface/error.log"]

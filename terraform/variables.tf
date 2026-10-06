@@ -6,6 +6,10 @@ variable "worker_port" {
     type = number
 }
 
+variable "interface_health_port" {
+    type = number
+}
+
 variable "postgres_port" {
     type = number
 }
@@ -23,6 +27,16 @@ variable "nginx_port" {
 }
 
 variable "localstack_auth" {
+    type = string
+    sensitive = true
+}
+
+variable "grafana_user" {
+    type = string
+    sensitive = true
+}
+
+variable "grafana_pass" {
     type = string
     sensitive = true
 }

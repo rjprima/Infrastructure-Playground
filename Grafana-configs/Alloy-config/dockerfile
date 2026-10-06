@@ -1,0 +1,3 @@
+FROM grafana/alloy
+
+COPY configure.alloy /etc/alloy/config.alloy

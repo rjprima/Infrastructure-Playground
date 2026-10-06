@@ -16,8 +16,8 @@ A small multi-container system (ingest → load balancer → worker pool → dat
 [Ingest Container] → [Nginx (load balancer)] → [Worker Containers (batch processing)] → [Postgres]
                                                                                               ↓
                                                                                    [LocalStack S3 (session backups)]
-
-Observability layer: Promtail → Loki → Grafana
+                           → Prometheus ↓
+Observability layer: Alloy → Loki → Grafana
 ```
 
 ## Tech Stack
@@ -28,26 +28,25 @@ Observability layer: Promtail → Loki → Grafana
 * **Cloud Emulation:** LocalStack (S3)
 * **Infrastructure as Code:** Terraform
 * **CI/CD:** GitHub Actions
-* **Observability:** Loki, Promtail, Grafana
+* **Observability:** Alloy, Prometheus, Loki, Grafana
 * **Application Layer:** Python
 
 ## Roadmap
 
 - [x] Core application logic (ingest → route → process → persist)
 - [x] Terraform provisioning
-- [ ] GitHub Actions CI/CD (builds, registry push, linting)
-- [ ] LocalStack S3 backup integration
-- [ ] Observability stack (Promtail, Loki, Grafana)
-- [ ] Automated teardown and rebuild testing (`terraform destroy` / `terraform apply`)
+- [x] GitHub Actions CI/CD (builds, registry push, linting)
+- [x] LocalStack S3 backup integration
+- [x] Observability stack (Alloy, Prometheus, Loki, Grafana)
 
 ## Key Objectives
 
 * **Infrastructure as Code:** Define, provision, and destroy the full environment reproducibly using Terraform.
-* **Configuration Management:** Automate post-provisioning setup with Ansible.
 * **Networking & Load Balancing:** Implement service discovery and traffic management via Nginx.
 * **CI/CD:** Automate container builds, registry pushes, and checks with GitHub Actions.
-* **Observability:** Aggregate and visualize logs across all services using Loki, Promtail, and Grafana.
+* **Observability:** Aggregate and visualize logs across all services using Alloy, Prometheus, Loki, and Grafana.
 * **Local Cloud Emulation:** Test cloud integrations locally with LocalStack S3.
+* **Portability** Maintain strict host-agnosticism for true reproducibility and to make a hypothetical refactor for cloud deployment a painless process.
 
 ## launch instructions:
 

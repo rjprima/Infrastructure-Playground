@@ -1,4 +1,5 @@
 #!/bin/bash
+exec > >(tee -a /var/log/container_logs/backup-script/entry.log) 2>&1
 set -e
 
 export AWS_ACCESS_KEY_ID="mock_key"

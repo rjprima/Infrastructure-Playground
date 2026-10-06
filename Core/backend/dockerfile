@@ -1,4 +1,7 @@
 FROM python:3.13-slim
+
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /src/
 
 COPY ./requirements.txt /
@@ -12,4 +15,4 @@ EXPOSE 8080
 RUN useradd -m app
 USER app
 
-CMD ["python", "batch_runtime.py"]
+CMD ["sh", "-c", "exec python batch_runtime.py 2>&1 | tee -a /var/log/container_logs/worker/worker-$WORKERID.log"]

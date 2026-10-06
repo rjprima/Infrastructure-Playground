@@ -1,0 +1,54 @@
+prometheus.scrape "scraper" {
+  targets = [
+    {"__address__" = "worker-0:3000"},
+    {"__address__" = "worker-1:3000"},
+    {"__address__" = "worker-2:3000"},
+    {"__address__" = "router_node:9113"},
+    {"__address__" = "aws:4566",
+    "__metrics_path__" = "/_localstack/health"},
+    {"__address__" = "database_node:9187"},
+    {"__address__" = "user_interface:8080"},
+    {"__address__" = "backup-script:8080"},
+  ]
+  forward_to = [ prometheus.remote_write.metrics.receiver ]
+  scrape_interval = "10s"
+}
+
+prometheus.remote_write "metrics" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
+
+local.file_match "all_containers" {
+  path_targets = [{
+    __path__ = "/var/log/container_logs/*/*.log",
+  }]
+}
+
+discovery.relabel "extract_container_name" {
+  targets = local.file_match.all_containers.targets
+
+  rule {
+    source_labels = ["__path__"]
+    regex = ".*/container_logs/([^/]+)/.*"
+    target_label  = "container"
+  }
+
+  rule {
+    source_labels = ["__path__"]
+    regex = ".*/container_logs/worker/(worker-[0-9]+).*"
+    target_label  = "container"
+  }
+}
+
+loki.source.file "dynamic_logs" {
+  targets = discovery.relabel.extract_container_name.output
+  forward_to = [loki.write.endpoint.receiver]
+}
+
+loki.write "endpoint" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
